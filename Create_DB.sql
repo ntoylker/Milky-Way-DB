@@ -1,5 +1,5 @@
 DROP DATABASE IF EXISTS milkyway;
-CREATE DATABASE milkyway;
+CREATE DATABASE milkyway CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE milkyway;
 
 -- 1. CELESTIAL OBJECT (Parent Table)
@@ -39,7 +39,7 @@ CREATE TABLE `Star` (
     `Mass` DECIMAL(6,3) NOT NULL,
     `Age` DECIMAL(11,2) NOT NULL,
     `SurfaceTemp` INT NOT NULL,
-    `Luminocity` DECIMAL(6,5) NOT NULL,
+    `Luminocity` DECIMAL(10,3) NOT NULL,
     `Phase` TEXT NOT NULL,
     PRIMARY KEY (`CelestialId`),
     CONSTRAINT `fk_star_celestial` FOREIGN KEY (`CelestialId`) REFERENCES `Celestial Object`(`Id`) ON DELETE CASCADE,
@@ -52,11 +52,11 @@ CREATE TABLE `Planet` (
     `PlanetarySystemId` INT UNSIGNED NOT NULL,
     `DistanceFromEarth` DECIMAL(10,2) NOT NULL,
     `DistanceFromCenter` DECIMAL(12,2) NOT NULL,
-    `Mass` DECIMAL(5,2) NOT NULL,
+    `Mass` DECIMAL(10,2) NOT NULL,
     `PlanetType` TEXT NOT NULL,
     `CoreTemp` INT NOT NULL,
     `SurfaceTemp` INT NOT NULL,
-    `OrbitalPeriod` DECIMAL(8,5) NOT NULL,
+    `OrbitalPeriod` DECIMAL(10,5) NOT NULL,
     `Habitability` BIT NOT NULL,
     PRIMARY KEY (`CelestialId`),
     CONSTRAINT `fk_planet_celestial` FOREIGN KEY (`CelestialId`) REFERENCES `Celestial Object`(`Id`) ON DELETE CASCADE,
@@ -128,3 +128,61 @@ CREATE TABLE `Debris Disk` (
     CONSTRAINT `fk_dd_celestial` FOREIGN KEY (`CelestialId`) REFERENCES `Celestial Object`(`Id`) ON DELETE CASCADE,
     CONSTRAINT `fk_dd_ps` FOREIGN KEY (`PlanetarySystemId`) REFERENCES `Planetary System`(`Id`) ON DELETE CASCADE
 );
+
+
+-- ==========================================================
+-- 11. VIEWS (Based on Deliverable 1, Section 4.4)
+-- ==========================================================
+
+-- 1. View for Natural Satellites, their Mother Planet and the System [cite: 388]
+-- Shows satellite details linked to the planet name (from Celestial Object) and System name.
+CREATE OR REPLACE VIEW `View_Satellite_Full_Details` AS
+SELECT 
+    s.`Name` AS SatelliteName,
+    s.`Diameter`,
+    s.`SatelliteType`,
+    co.`Name` AS PlanetName,
+    ps.`Name` AS SystemName
+FROM `Satellite` s
+JOIN `Planet` p ON s.`PlanetId` = p.`CelestialId`
+JOIN `Celestial Object` co ON p.`CelestialId` = co.`Id`
+JOIN `Planetary System` ps ON p.`PlanetarySystemId` = ps.`Id`;
+
+-- 2. View for Planetary Systems that have Red Dwarfs [cite: 404]
+-- Lists systems containing stars with phase 'Red Dwarf', showing Mass and Luminosity.
+CREATE OR REPLACE VIEW `View_Red_Dwarf_Systems` AS
+SELECT 
+    ps.`Name` AS SystemName,
+    co.`Name` AS StarName,
+    s.`Mass`,
+    s.`Luminocity`,
+    s.`Phase`
+FROM `Star` s
+JOIN `Planetary System` ps ON s.`PlanetarySystemId` = ps.`Id`
+JOIN `Celestial Object` co ON s.`CelestialId` = co.`Id`
+WHERE s.`Phase` = 'Red Dwarf';
+
+-- 3. View for Planet types with high surface temperature (> 400K) [cite: 408]
+-- Filters planets hot enough to likely be uninhabitable or close to the star.
+CREATE OR REPLACE VIEW `View_Hot_Planets` AS
+SELECT 
+    co.`Name` AS PlanetName,
+    p.`PlanetType`,
+    p.`SurfaceTemp`,
+    ps.`Name` AS SystemName
+FROM `Planet` p
+JOIN `Celestial Object` co ON p.`CelestialId` = co.`Id`
+JOIN `Planetary System` ps ON p.`PlanetarySystemId` = ps.`Id`
+WHERE p.`SurfaceTemp` > 400;
+
+-- 4. View for Planets and the name of their Planetary System [cite: 412]
+-- A general directory connecting Planets to their Systems.
+CREATE OR REPLACE VIEW `View_Planet_Directory` AS
+SELECT 
+    co.`Name` AS PlanetName,
+    ps.`Name` AS SystemName,
+    p.`Habitability`,
+    p.`DistanceFromEarth`
+FROM `Planet` p
+JOIN `Planetary System` ps ON p.`PlanetarySystemId` = ps.`Id`
+JOIN `Celestial Object` co ON p.`CelestialId` = co.`Id`;
