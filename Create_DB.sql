@@ -129,9 +129,27 @@ CREATE TABLE `Debris Disk` (
     CONSTRAINT `fk_dd_ps` FOREIGN KEY (`PlanetarySystemId`) REFERENCES `Planetary System`(`Id`) ON DELETE CASCADE
 );
 
+-- ==========================================================
+-- 11. TABLE FOR VERIFIED USER SUBMISSIONS (Requirement 2)
+-- ΧΡΕΙΑΖΕΤΑΙ ΑΥΤΌΣ Ο ΠΊΝΑΚΑΣ ΓΙΑ ΝΑ ΜΠΟΡΈΣΕΙ ΝΑ ΥΠΑΡΞΕΙ Ο USER "VERIFIED USER" ΠΟΥ ΠΕΡΙΓΡΑΦΗΚΕ
+-- ΣΤΟ ΠΡΩΤΟ ΠΑΡΑΔΟΤΕΟ ΣΤΗΝ ΥΠΟΕΝΟΤΗΤΑ 2.
+-- ΑΥΤΌΣ Ο ΠΙΝΑΚΑΣ ΥΛΟΠΟΙΕΙ ΤΙΣ "ΑΙΤΗΣΕΙΣ" ΠΟΥ ΚΑΝΕΙ Ο VERIFIED USER ΓΙΑ ΝΑ ΚΑΤΑΧΩΡΗΣΕΙ ΔΕΔΟΜΕΝΑ ΣΤΗ ΒΑΣΗ
+-- ΔΕΝ ΥΠΑΡΧΕΙ ΣΤΑ ΣΧΗΜΑΤΑ, ΔΕΝ ΥΠΑΡΧΕΙ ΠΟΥΘΕΝΑ ΠΕΡΑ ΑΠΌ ΕΔΩ.
+-- ΚΑΘΑΡΑ ΒΟΗΘΗΤΙΚΌ TABLE
+-- ==========================================================
+CREATE TABLE `Pending_Observation` (
+    `Id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `SubmitterName` VARCHAR(50) NOT NULL,
+    `TargetObject` VARCHAR(50) NOT NULL,
+    `ObservationData` TEXT NOT NULL,
+    `SubmissionDate` DATE NOT NULL,
+    `Status` ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    PRIMARY KEY (`Id`)
+);
+
 
 -- ==========================================================
--- 11. VIEWS (Based on Deliverable 1, Section 4.4)
+-- 12. VIEWS (Based on Deliverable 1, Section 4.4)
 -- ==========================================================
 
 -- 1. View for Natural Satellites, their Mother Planet and the System [cite: 388]

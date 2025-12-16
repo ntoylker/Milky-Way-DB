@@ -23,7 +23,6 @@ CREATE USER IF NOT EXISTS 'hobbyist_user'@'localhost' IDENTIFIED BY 'hobbyPass12
 -- ----------------------------------------------------------
 GRANT ALL PRIVILEGES ON milkyway.* TO 'admin_user'@'localhost' WITH GRANT OPTION;
 
-
 -- ----------------------------------------------------------
 -- 2. RESEARCHER
 -- Requirement: Read all data, Insert new data, Update/Delete their own data
@@ -32,23 +31,18 @@ GRANT ALL PRIVILEGES ON milkyway.* TO 'admin_user'@'localhost' WITH GRANT OPTION
 -- ----------------------------------------------------------
 GRANT SELECT, INSERT, UPDATE, DELETE ON milkyway.* TO 'researcher_user'@'localhost';
 
-
 -- ----------------------------------------------------------
 -- 3. VERIFIED USER
 -- Requirement: Read official data, Submit proposals to "Pending Observations"
--- CRITICAL NOTE: Your current schema lacks the "Pending Observations" table mentioned in Deliverable 1
--- Therefore, we grant SELECT on all tables
 -- ----------------------------------------------------------
 GRANT SELECT ON milkyway.* TO 'verified_user'@'localhost';
-GRANT INSERT ON milkyway.`Observation` TO 'verified_user'@'localhost'; 
-
+GRANT INSERT ON milkyway.`Pending_Observation` TO 'verified_user'@'localhost'; 
 
 -- ----------------------------------------------------------
 -- 4. HOBBYIST
 -- Requirement: Read-only access, complex queries
 -- ----------------------------------------------------------
 GRANT SELECT ON milkyway.* TO 'hobbyist_user'@'localhost';
-
 
 -- ==========================================================
 -- APPLY CHANGES
